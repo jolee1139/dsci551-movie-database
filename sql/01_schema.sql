@@ -87,7 +87,7 @@ CREATE TABLE ratings (
     rated_at DATETIME NOT NULL,
 
     PRIMARY KEY (user_id, movie_id),
-    INDEX idx_ratings_movie_id (movie_id),
+    INDEX idx_ratings_movie_rating (movie_id, rating),
 
     CONSTRAINT chk_ratings_value
         CHECK (rating BETWEEN 0.5 AND 5.0),
