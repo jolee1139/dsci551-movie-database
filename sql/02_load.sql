@@ -14,7 +14,7 @@ TRUNCATE TABLE movie_details;
 SELECT 'Loading movie_details...' AS status;
 
 LOAD DATA LOCAL INFILE
-'/Users/yoey_danjuma/Desktop/DSCI551/dsci551-movie-database/data/staging/load/movie_details.csv'
+'data/staging/load/movie_details.csv'
 INTO TABLE movie_details
 CHARACTER SET utf8mb4
 FIELDS TERMINATED BY ','
@@ -64,7 +64,7 @@ SELECT ROW_COUNT() AS movie_details_loaded;
 SELECT 'Loading users...' AS status;
 
 LOAD DATA LOCAL INFILE
-'/Users/yoey_danjuma/Desktop/DSCI551/dsci551-movie-database/data/staging/load/users.csv'
+'data/staging/load/users.csv'
 INTO TABLE users
 CHARACTER SET utf8mb4
 FIELDS TERMINATED BY ','
@@ -80,7 +80,7 @@ SELECT ROW_COUNT() AS users_loaded;
 SELECT 'Loading movies...' AS status;
 
 LOAD DATA LOCAL INFILE
-'/Users/yoey_danjuma/Desktop/DSCI551/dsci551-movie-database/data/staging/load/movies.csv'
+'data/staging/load/movies.csv'
 INTO TABLE movies
 CHARACTER SET utf8mb4
 FIELDS TERMINATED BY ','
@@ -106,7 +106,7 @@ SELECT ROW_COUNT() AS movies_loaded;
 SELECT 'Loading genres...' AS status;
 
 LOAD DATA LOCAL INFILE
-'/Users/yoey_danjuma/Desktop/DSCI551/dsci551-movie-database/data/staging/load/genres.csv'
+'data/staging/load/genres.csv'
 INTO TABLE genres
 CHARACTER SET utf8mb4
 FIELDS TERMINATED BY ','
@@ -122,7 +122,7 @@ SELECT ROW_COUNT() AS genres_loaded;
 SELECT 'Loading movie_genres...' AS status;
 
 LOAD DATA LOCAL INFILE
-'/Users/yoey_danjuma/Desktop/DSCI551/dsci551-movie-database/data/staging/load/movie_genres.csv'
+'data/staging/load/movie_genres.csv'
 INTO TABLE movie_genres
 CHARACTER SET utf8mb4
 FIELDS TERMINATED BY ','
@@ -138,7 +138,7 @@ SELECT ROW_COUNT() AS movie_genres_loaded;
 SELECT 'Loading ratings; this may take several minutes...' AS status;
 
 LOAD DATA LOCAL INFILE
-'/Users/yoey_danjuma/Desktop/DSCI551/dsci551-movie-database/data/staging/load/ratings.csv'
+'data/staging/load/ratings.csv'
 INTO TABLE ratings
 CHARACTER SET utf8mb4
 FIELDS TERMINATED BY ','
