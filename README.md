@@ -81,6 +81,8 @@ enriched.
 
 ```text
 dsci551-movie-database/
+├── .streamlit/
+│   └── config.toml
 ├── app/
 │   └── streamlit_app.py
 ├── data/
@@ -90,7 +92,11 @@ dsci551-movie-database/
 ├── experiments/
 │   ├── 01_index_benchmark.sql
 │   ├── baseline_plan.txt
+│   ├── benchmark_results.txt
 │   ├── covering_plan.txt
+│   ├── movie_group_tablescan_plan.txt
+│   ├── q5_join_plan.txt
+│   ├── q7_plan.txt
 │   ├── repeated_plans.txt
 │   └── README.md
 ├── sql/
@@ -99,16 +105,14 @@ dsci551-movie-database/
 │   └── 03_queries.sql
 ├── src/
 │   ├── download_movielens.py
-│   ├── profile_and_select.py
 │   ├── fetch_tmdb.py
-│   ├── resolve_tmdb.py
+│   ├── profile_and_select.py
+│   ├── resolve_tmdb_ids.py
 │   └── transform.py
-├── .streamlit/
-│   └── config.toml
 ├── .env.example
 ├── .gitignore
-├── requirements.txt
-└── README.md
+├── README.md
+└── requirements.txt
 ```
 
 Generated data, API responses, virtual environments, and private
@@ -310,18 +314,15 @@ GROUP BY movie_id;
 
 ### Results
 
-|            Trial |       Baseline index |     Covering index |
-| ---------------: | -------------------: | -----------------: |
-|                1 |           178,584 ms |           4,065 ms |
-|                2 |           193,989 ms |           3,916 ms |
-|                3 |           197,579 ms |           3,953 ms |
-| **Median** | **193,989 ms** | **3,953 ms** |
+| Access path                              | Plan operations                               | Median time |
+| ---------------------------------------- | --------------------------------------------- | ----------: |
+| Forced non-covering index `(movie_id)` | Index scan → Group aggregate                 |  184,311 ms |
+| No secondary index (full table scan)     | Table scan → Aggregate using temporary table |    8,814 ms |
+| Covering index `(movie_id, rating)`    | Covering index scan → Group aggregate        |    4,137 ms |
 
-The covering index reduced median execution time by approximately
-98.0% and produced a 49.1× speedup.
+The covering index was approximately **44.6× faster** than the forced non-covering index and approximately **2.1× faster** than a full table scan.
 
-Detailed methodology and execution plans are available in
-[`experiments/README.md`](experiments/README.md).
+In the unhinted execution plan, MySQL selected the covering index on its own.
 
 ## Streamlit Dashboard
 

@@ -1,12 +1,12 @@
 ## Results: three access paths for the same query
 
-| Access path | Plan operations | Observed execution time |
+| Access path | Plan operations | Median time |
 |---|---|---:|
-| Forced non-covering index `(movie_id)` | Index scan → Group aggregate | 193,989 ms |
-| No secondary index (full table scan) | Table scan → Aggregate using temporary table | ~8,660 ms |
-| Covering index `(movie_id, rating)` | Covering index scan → Group aggregate | 3,953 ms |
+| Forced non-covering index `(movie_id)` | Index scan → Group aggregate | 184,311 ms |
+| No secondary index (full table scan) | Table scan → Aggregate using temporary table | 8,814 ms |
+| Covering index `(movie_id, rating)` | Covering index scan → Group aggregate | 4,137 ms |
 
-*The non-covering and covering index results are medians of three trials. The full-table-scan result is from one trial.*
+*Every reported time is the median of three trials. The table-scan trials were executed last, after the InnoDB buffer pool had already been warmed by the indexed trials.*
 
 ## Why the non-covering index is slowest
 
@@ -18,7 +18,7 @@ The secondary index is scanned in `movie_id` order, while the clustered index is
 
 A full table scan reads the clustered-index leaf pages using mostly **sequential I/O**, obtaining both `movie_id` and `rating` directly without performing a separate clustered-index lookup for every row. Although MySQL must build a temporary table to group records by `movie_id`, this is still substantially faster than 20 million random lookups.
 
-The benchmark's full-table-scan plan finished in approximately 8.66 seconds. As additional evidence that sequential access is efficient, Query 7 also read all 20,000,263 rating rows sequentially in approximately 3.8 seconds.
+The benchmark's full-table-scan plan finished in approximately 8.81 seconds. As additional evidence that sequential access is efficient, Query 7 also read all 20,000,263 rating rows sequentially in approximately 3.8 seconds.
 
 ## Why the covering index is fastest
 
@@ -28,6 +28,8 @@ Because InnoDB adds primary-key columns to every secondary index entry, the phys
 
 ## Optimizer behavior
 
-Both indexed benchmark plans were executed with `FORCE INDEX`, so this experiment does not establish which access path MySQL would select without a hint. In trial 1, the optimizer estimated a cost of `24e6` for the non-covering baseline and `26.6e6` for the covering index, ranking the plan that proved much faster as more expensive.
+In the unhinted plan, MySQL independently selected a covering index scan using `idx_ratings_movie_rating`. This confirms that, when both secondary indexes were available, the optimizer naturally chose the fastest access path.
 
-`EXPLAIN ANALYZE` showed actual execution times of approximately 178.6 seconds for the non-covering index and 4.1 seconds for the covering index in that trial. This disagreement demonstrates that optimizer cost estimates are not execution times and should be validated with measured results. A separate experiment without `FORCE INDEX` would be required to determine which access path MySQL chooses naturally.
+For the forced plans, MySQL estimated costs of `25.3e6` to `26.6e6` for the non-covering index and `24.2e6` for the covering index—a difference of less than 10%. However, their measured median times differed by approximately 45×: 184,311 ms versus 4,137 ms. This indicates that the cost model badly underestimated the expense of performing 20 million random lookups into the clustered index.
+
+Cost estimates should also be compared only within the same optimization mode. The same covering-index plan had an estimated cost of `24.2e6` when forced but only `6.63e6` when selected without a hint. Optimizer costs are not execution times, so they must be checked against measured results.

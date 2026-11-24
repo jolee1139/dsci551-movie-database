@@ -663,15 +663,15 @@ with project_tab:
 
     index_columns[0].metric(
         "Baseline median",
-        "193.989 sec",
+        "184.311 sec",
     )
     index_columns[1].metric(
         "Covering-index median",
-        "3.953 sec",
+        "4.137 sec",
     )
     index_columns[2].metric(
         "Median speedup",
-        "49.1×",
+        "44.6×",
     )
 
     st.subheader("Data limitations")
